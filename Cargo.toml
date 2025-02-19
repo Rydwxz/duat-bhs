@@ -1,0 +1,7 @@
+[package]
+name = "duat-catppuccin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+duat-core = { version = ">=0.2.1", path = "../duat/duat-core" }

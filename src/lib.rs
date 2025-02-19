@@ -1,0 +1,344 @@
+use std::marker::PhantomData;
+
+use duat_core::form::{self, Form, add_colorscheme};
+
+pub struct Catppuccin<U> {
+    no_background: bool,
+    modifications: Box<dyn Fn(Colors) + Send + Sync + 'static>,
+    _u: PhantomData<U>
+}
+
+impl<U: duat_core::ui::Ui> duat_core::Plugin<U> for Catppuccin<U> {
+    fn new() -> Self {
+        Self {
+            no_background: false,
+            modifications: Box::new(|_| {}),
+            _u: PhantomData
+        }
+    }
+
+    /// Adds the catppuccin colorschemes
+    ///
+    /// This will add the Latte, Frappe, Macchiato, and Mocha flavors,
+    /// modified by the options passed to [`Catppuccin`]
+    fn plug(self) {
+        let no_bg = self.no_background;
+        let m = Box::leak(self.modifications);
+        add_colorscheme(ColorScheme::latte(m).no_bg(no_bg));
+        add_colorscheme(ColorScheme::frappe(m).no_bg(no_bg));
+        add_colorscheme(ColorScheme::macchiato(m).no_bg(no_bg));
+        add_colorscheme(ColorScheme::mocha(m).no_bg(no_bg));
+    }
+}
+
+impl<U> Catppuccin<U> {
+    /// Disables the background color
+    ///
+    /// This can allow you to have, for example, a transparent
+    /// terminal.
+    pub fn no_background(self) -> Self {
+        Self { no_background: true, ..self }
+    }
+
+    /// Lets you modify forms, based on the chosen colorscheme
+    ///
+    /// For example, if you want red delimiters, you can do this:
+    ///
+    /// ```rust
+    /// # use duat_core::form;
+    /// # use duat_catppuccin as catppuccin;
+    /// # fn plug(plug: Catppuccin) {}
+    /// use catppuccin::Catppuccin;
+    ///
+    /// plug(Catppuccin::new().modify(|colors| {
+    ///     form::set("punctuation.delimiter", colors.red);
+    /// }));
+    /// ```
+    pub fn modify<R>(self, modifications: impl Fn(Colors) -> R + Send + Sync + 'static) -> Self {
+        let modifications = Box::new(move |c| {
+            modifications(c);
+        });
+        Self { modifications, ..self }
+    }
+}
+
+#[derive(Default)]
+enum Flavour {
+    Latte,
+    Frappe,
+    Macchiato,
+    #[default]
+    Mocha,
+}
+
+struct ColorScheme {
+    flavour: Flavour,
+    no_background: bool,
+    modifications: &'static (dyn Fn(Colors) + Send + Sync),
+}
+
+impl form::ColorScheme for ColorScheme {
+    fn apply(&self) {
+        let c = match self.flavour {
+            Flavour::Latte => LATTE,
+            Flavour::Frappe => FRAPPE,
+            Flavour::Macchiato => MACCHIATO,
+            Flavour::Mocha => MOCHA,
+        };
+
+        if self.no_background {
+            form::set("Default", Form::with(c.text));
+        } else {
+            form::set("Default", Form::with(c.text).on(c.base));
+        }
+
+        form::set_many!(
+            // Base Duat Forms
+            ("DefaultOk", Form::with(c.sapphire)),
+            ("AccentOk", Form::with(c.sky).bold()),
+            ("DefaultErr", Form::with(c.maroon)),
+            ("AccentErr", Form::with(c.red).bold()),
+            ("DefaultHint", Form::with(c.text)),
+            ("AccentHint", Form::with(c.subtext0).bold()),
+            ("MainCursor", Form::reverse()),
+            ("ExtraCursor", Form::reverse()),
+            ("MainSelection", Form::on(c.overlay1)),
+            ("ExtraSelection", Form::on(c.overlay0)),
+            ("Inactive", Form::with(c.overlay2)),
+            // Other Duat Forms
+            ("LineNum", Form::with(c.overlay2)),
+            ("MainLineNum", Form::with(c.yellow)),
+            ("WrappedLineNum", Form::with(c.teal)),
+            ("File", Form::with(c.yellow)),
+            ("Selections", Form::with(c.blue)),
+            ("Coord", Form::with(c.peach)),
+            ("Separator", Form::with(c.teal)),
+            ("Mode", Form::with(c.green)),
+            // Tree sitter Forms
+            ("type", Form::with(c.yellow).italic()),
+            ("type.builtin", Form::with(c.yellow).reset()),
+            ("function", Form::with(c.blue).reset()),
+            ("comment", Form::with(c.overlay2)),
+            ("comment.documentation", Form::with(c.overlay2).bold()),
+            ("punctuation.bracket", Form::with(c.subtext0)),
+            ("punctuation.delimiter", Form::with(c.subtext0)),
+            ("constant", Form::with(c.subtext1)),
+            ("constant.builtin", Form::with(c.peach)),
+            ("variable.parameter", Form::italic()),
+            ("variable.builtin", Form::with(c.peach)),
+            ("label", Form::with(c.green)),
+            ("keyword", Form::with(c.mauve)),
+            ("string", Form::with(c.green)),
+            ("escape", Form::with(c.peach)),
+            ("attribute", Form::with(c.mauve)),
+            ("operator", Form::with(c.sapphire)),
+            ("constructor", Form::with(c.peach)),
+            ("module", Form::with(c.blue).italic()),
+            // Plugin Forms
+            ("VertRule", Form::with(c.subtext0)),
+            ("Frame", Form::with(c.subtext0).on(c.base))
+        );
+
+        (self.modifications)(c)
+    }
+
+    fn name(&self) -> &'static str {
+        match self.flavour {
+            Flavour::Latte => "catppuccin-latte",
+            Flavour::Frappe => "catppuccin-frappe",
+            Flavour::Macchiato => "catppuccin-macchiato",
+            Flavour::Mocha => "catppuccin-mocha",
+        }
+    }
+}
+
+impl ColorScheme {
+    /// Returns the Catppuccin [`ColorScheme`] in the Latte flavour
+    fn latte(modifications: &'static (dyn Fn(Colors) + Send + Sync)) -> Self {
+        Self {
+            flavour: Flavour::Latte,
+            no_background: false,
+            modifications,
+        }
+    }
+
+    /// Returns the Catppuccin [`ColorScheme`] in the Frappe flavour
+    fn frappe(modifications: &'static (dyn Fn(Colors) + Send + Sync)) -> Self {
+        Self {
+            flavour: Flavour::Frappe,
+            no_background: false,
+            modifications,
+        }
+    }
+
+    /// Returns the Catppuccin [`ColorScheme`] in the Macchiato
+    /// flavour
+    fn macchiato(modifications: &'static (dyn Fn(Colors) + Send + Sync)) -> Self {
+        Self {
+            flavour: Flavour::Macchiato,
+            no_background: false,
+            modifications,
+        }
+    }
+
+    /// Returns the Catppuccin [`ColorScheme`] in the Mocha flavour
+    fn mocha(modifications: &'static (dyn Fn(Colors) + Send + Sync)) -> Self {
+        Self {
+            flavour: Flavour::Mocha,
+            no_background: false,
+            modifications,
+        }
+    }
+
+    /// Removes the background color
+    ///
+    /// This can allow, for example, transparent backgrounds in
+    /// terminal interfaces.
+    fn no_bg(self, bool: bool) -> Self {
+        Self { no_background: bool, ..self }
+    }
+}
+
+pub struct Colors {
+    pub rosewater: &'static str,
+    pub flamingo: &'static str,
+    pub pink: &'static str,
+    pub mauve: &'static str,
+    pub red: &'static str,
+    pub maroon: &'static str,
+    pub peach: &'static str,
+    pub yellow: &'static str,
+    pub green: &'static str,
+    pub teal: &'static str,
+    pub sky: &'static str,
+    pub sapphire: &'static str,
+    pub blue: &'static str,
+    pub lavender: &'static str,
+    pub text: &'static str,
+    pub subtext1: &'static str,
+    pub subtext0: &'static str,
+    pub overlay2: &'static str,
+    pub overlay1: &'static str,
+    pub overlay0: &'static str,
+    pub surface2: &'static str,
+    pub surface1: &'static str,
+    pub surface0: &'static str,
+    pub base: &'static str,
+    pub mantle: &'static str,
+    pub crust: &'static str,
+}
+
+const LATTE: Colors = Colors {
+    rosewater: "#dc8a78",
+    flamingo: "#dd7878",
+    pink: "#ea76cb",
+    mauve: "#8839ef",
+    red: "#d20f39",
+    maroon: "#e64553",
+    peach: "#fe640b",
+    yellow: "#df8e1d",
+    green: "#40a02b",
+    teal: "#179299",
+    sky: "#04a5e5",
+    sapphire: "#209fb5",
+    blue: "#1e66f5",
+    lavender: "#7287fd",
+    text: "#4c4f69",
+    subtext1: "#5c5f77",
+    subtext0: "#6c6f85",
+    overlay2: "#7c7f93",
+    overlay1: "#8c8fa1",
+    overlay0: "#9ca0b0",
+    surface2: "#acb0be",
+    surface1: "#bcc0cc",
+    surface0: "#ccd0da",
+    base: "#eff1f5",
+    mantle: "#e6e9ef",
+    crust: "#dce0e8",
+};
+const FRAPPE: Colors = Colors {
+    rosewater: "#f2d5cf",
+    flamingo: "#eebebe",
+    pink: "#f4b8e4",
+    mauve: "#ca9ee6",
+    red: "#e78284",
+    maroon: "#ea999c",
+    peach: "#ef9f76",
+    yellow: "#e5c890",
+    green: "#a6d189",
+    teal: "#81c8be",
+    sky: "#99d1db",
+    sapphire: "#85c1dc",
+    blue: "#8caaee",
+    lavender: "#babbf1",
+    text: "#c6d0f5",
+    subtext1: "#b5bfe2",
+    subtext0: "#a5adce",
+    overlay2: "#949cbb",
+    overlay1: "#838ba7",
+    overlay0: "#737994",
+    surface2: "#626880",
+    surface1: "#51576d",
+    surface0: "#414559",
+    base: "#303446",
+    mantle: "#292c3c",
+    crust: "#232634",
+};
+
+const MACCHIATO: Colors = Colors {
+    rosewater: "#f4dbd6",
+    flamingo: "#f0c6c6",
+    pink: "#f5bde6",
+    mauve: "#c6a0f6",
+    red: "#ed8796",
+    maroon: "#ee99a0",
+    peach: "#f5a97f",
+    yellow: "#eed49f",
+    green: "#a6da95",
+    teal: "#8bd5ca",
+    sky: "#91d7e3",
+    sapphire: "#7dc4e4",
+    blue: "#8aadf4",
+    lavender: "#b7bdf8",
+    text: "#cad3f5",
+    subtext1: "#b8c0e0",
+    subtext0: "#a5adcb",
+    overlay2: "#939ab7",
+    overlay1: "#8087a2",
+    overlay0: "#6e738d",
+    surface2: "#5b6078",
+    surface1: "#494d64",
+    surface0: "#363a4f",
+    base: "#24273a",
+    mantle: "#1e2030",
+    crust: "#181926",
+};
+
+const MOCHA: Colors = Colors {
+    rosewater: "#f5e0dc",
+    flamingo: "#f2cdcd",
+    pink: "#f5c2e7",
+    mauve: "#cba6f7",
+    red: "#f38ba8",
+    maroon: "#eba0ac",
+    peach: "#fab387",
+    yellow: "#f9e2af",
+    green: "#a6e3a1",
+    teal: "#94e2d5",
+    sky: "#89dceb",
+    sapphire: "#74c7ec",
+    blue: "#89b4fa",
+    lavender: "#b4befe",
+    text: "#cdd6f4",
+    subtext1: "#bac2de",
+    subtext0: "#a6adc8",
+    overlay2: "#9399b2",
+    overlay1: "#7f849c",
+    overlay0: "#6c7086",
+    surface2: "#585b70",
+    surface1: "#45475a",
+    surface0: "#313244",
+    base: "#1e1e2e",
+    mantle: "#181825",
+    crust: "#11111b",
+};
