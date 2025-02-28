@@ -5,7 +5,7 @@ use duat_core::form::{self, Form, add_colorscheme};
 pub struct Catppuccin<U> {
     no_background: bool,
     modifications: Box<dyn Fn(Colors) + Send + Sync + 'static>,
-    _u: PhantomData<U>
+    _u: PhantomData<U>,
 }
 
 impl<U: duat_core::ui::Ui> duat_core::Plugin<U> for Catppuccin<U> {
@@ -13,7 +13,7 @@ impl<U: duat_core::ui::Ui> duat_core::Plugin<U> for Catppuccin<U> {
         Self {
             no_background: false,
             modifications: Box::new(|_| {}),
-            _u: PhantomData
+            _u: PhantomData,
         }
     }
 
@@ -134,7 +134,23 @@ impl form::ColorScheme for ColorScheme {
             ("operator", Form::with(c.sapphire)),
             ("constructor", Form::with(c.peach)),
             ("module", Form::with(c.blue).italic()),
-            // Plugin Forms
+            // Markup Forms
+            ("markup", Form::new()),
+            ("markup.strong", Form::with(c.maroon).bold()),
+            ("markup.italic", Form::with(c.maroon).italic()),
+            ("markup.strikethrough", Form::new().crossed_out()),
+            ("markup.underline", Form::underlined(),),
+            ("markup.heading", Form::with(c.blue).bold()),
+            ("markup.math", Form::with(c.yellow)),
+            ("markup.quote", Form::with(c.maroon).bold()),
+            ("markup.environment", Form::with(c.pink)),
+            ("markup.environment.name", Form::with(c.blue)),
+            ("markup.link", Form::with(c.lavender).underlined()),
+            ("markup.raw", Form::with(c.teal)),
+            ("markup.list", Form::with(c.yellow)),
+            ("markup.list.checked", Form::with(c.green)),
+            ("markup.list.unchecked", Form::with(c.overlay1)),
+            // Plugin and Ui Forms
             ("VertRule", Form::with(c.subtext0)),
             ("Frame", Form::with(c.subtext0).on(c.base))
         );

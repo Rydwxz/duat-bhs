@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-duat-core = { version = ">=0.2.1", path = "../duat/duat-core" }
+duat-core = { version = ">=0.3.0", path = "../duat/duat-core" }
