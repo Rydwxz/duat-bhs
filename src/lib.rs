@@ -1,3 +1,19 @@
+//! # Duat Catppuccin
+//!
+//! This is an implementation of the [Catppuccin](https://catppuccin.com)
+//! colorschemes for Duat.
+//!
+//! When you `plug` this plugin, four colorschemes will be added to
+//! Duat:
+//!
+//! * `catppuccin-latte`;
+//! * `catppuccin-`frappe`;
+//! * `catppuccin-macchiato`;
+//! * `catppuccin-mocha`;
+//!
+//! This plugin lets you use its colors to modify other `Form`s with
+//! the `Catppuccin::modify` function. It also has a `no_background`
+//! function, if you don't want the background to change.
 use std::marker::PhantomData;
 
 use duat_core::form::{self, Form, add_colorscheme};
@@ -139,7 +155,7 @@ impl form::ColorScheme for ColorScheme {
             ("markup.strong", Form::with(c.maroon).bold()),
             ("markup.italic", Form::with(c.maroon).italic()),
             ("markup.strikethrough", Form::new().crossed_out()),
-            ("markup.underline", Form::underlined(),),
+            ("markup.underline", Form::underlined()),
             ("markup.heading", Form::with(c.blue).bold()),
             ("markup.math", Form::with(c.yellow)),
             ("markup.quote", Form::with(c.maroon).bold()),

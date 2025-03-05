@@ -2,6 +2,13 @@
 name = "duat-catppuccin"
 version = "0.1.0"
 edition = "2024"
+authors = ["AhoyISki"]
+description = "The Catppuccin colorschemes for the Duat text editor"
+homepage = "https://github.com/AhoyISki/duat-catppuccin"
+license = "AGPL-3.0-or-later"
+readme = "README.md"
+keywords = ["colorscheme", "duat", "plugin"]
+categories = ["command-line-utilities", "text-editors", "config"]
 
 [dependencies]
 duat-core = { version = ">=0.3.0", path = "../duat/duat-core" }
