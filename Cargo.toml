@@ -10,5 +10,20 @@ readme = "README.md"
 keywords = ["colorscheme", "duat", "plugin"]
 categories = ["command-line-utilities", "text-editors", "config"]
 
+[features]
+default = ["normal-deps"]
+__local-deps = ["dep:local-duat-core"]
+normal-deps = ["dep:duat-core"]
+
 [dependencies]
-duat-core = { version = "0.3.0", git = "https://github.com/AhoyISki/duat" }
+
+[dependencies.local-duat-core]
+version = "0.3.0"
+path = "../duat/duat-core/"
+package = "duat-core"
+optional = true
+
+[dependencies.duat-core]
+version = "0.3.0"
+git = "https://github.com/AhoyISki/duat"
+optional = true
