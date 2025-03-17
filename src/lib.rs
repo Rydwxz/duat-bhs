@@ -118,8 +118,8 @@ impl form::ColorScheme for ColorScheme {
             ("AccentHint", Form::with(c.subtext0).bold()),
             ("MainCursor", Form::reverse()),
             ("ExtraCursor", Form::reverse()),
-            ("MainSelection", Form::on(c.overlay1)),
-            ("ExtraSelection", Form::on(c.overlay0)),
+            ("MainSelection", Form::with(c.base).on(c.overlay1)),
+            ("ExtraSelection", Form::with(c.base).on(c.overlay0)),
             ("Inactive", Form::with(c.overlay2)),
             // Other Duat Forms
             ("LineNum", Form::with(c.overlay2)),
