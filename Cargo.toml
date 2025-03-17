@@ -11,7 +11,4 @@ keywords = ["colorscheme", "duat", "plugin"]
 categories = ["command-line-utilities", "text-editors", "config"]
 
 [dependencies]
-
-[duat-core]
-git = "https://github.com/AhoyISki/duat"
-version = "0.3.0"
+duat-core = { version = "0.3.0", git = "https://github.com/AhoyISki/duat" }
