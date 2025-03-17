@@ -14,5 +14,4 @@ categories = ["command-line-utilities", "text-editors", "config"]
 
 [duat-core]
 git = "https://github.com/AhoyISki/duat"
-path = "../duat/duat-core"
 version = "0.3.0"
