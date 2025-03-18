@@ -10,20 +10,11 @@ readme = "README.md"
 keywords = ["colorscheme", "duat", "plugin"]
 categories = ["command-line-utilities", "text-editors", "config"]
 
-[features]
-default = ["normal-deps"]
-__local-deps = ["dep:local-duat-core"]
-normal-deps = ["dep:duat-core"]
-
 [dependencies]
-
-[dependencies.local-duat-core]
-version = "0.3.0"
-path = "../duat/duat-core/"
-package = "duat-core"
-optional = true
-
-[dependencies.duat-core]
-version = "0.3.0"
-git = "https://github.com/AhoyISki/duat"
-optional = true
+# Just a heads up, this dependency, along with the duat
+# submodule, exist only because I (AhoyISki) need to work on
+# plugins, duat, and duat-core all at the same time, so depending
+# a git path would not work supper well, as i'd constantly have
+# to update the dependencies.
+# For your own plugins, you can stick with a git source.
+duat-core = { version = "0.3.0", path = "duat/duat-core/" }

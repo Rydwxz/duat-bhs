@@ -15,17 +15,6 @@
 //! the `Catppuccin::modify` function. It also has a `no_background`
 //! function, if you don't want the background to change.
 
-// Internal module for a dependency on duat-core from git or path.
-mod duat_core {
-    #[cfg(all(feature = "normal-deps", not(feature = "__local-deps")))]
-    pub use duat_core::*;
-    #[cfg(all(feature = "__local-deps", not(feature = "normal-deps")))]
-    pub use local_duat_core::*;
-    #[cfg(all(feature = "__local-deps", feature = "normal-deps"))]
-    compile_error!("Use only one source for duat-core");
-    #[cfg(all(not(feature = "__local-deps"), not(feature = "normal-deps")))]
-    compile_error!("Must have only one source for duat-core");
-}
 
 use std::marker::PhantomData;
 
