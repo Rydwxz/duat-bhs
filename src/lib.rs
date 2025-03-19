@@ -14,8 +14,6 @@
 //! This plugin lets you use its colors to modify other `Form`s with
 //! the `Catppuccin::modify` function. It also has a `no_background`
 //! function, if you don't want the background to change.
-
-
 use std::marker::PhantomData;
 
 use duat_core::form::{self, Form, add_colorscheme};
