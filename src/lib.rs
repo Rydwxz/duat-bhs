@@ -1,6 +1,6 @@
-//! # Duat Catppuccin
+//! # Duat Black Hole Sun
 //!
-//! This is an implementation of the [Catppuccin](https://catppuccin.com)
+//! This is an implementation of the [Black Hole Sun](https://github.com/Rydwxz/bhs)
 //! colorschemes for Duat.
 //!
 //! When you `plug` this plugin, four colorschemes will be added to
